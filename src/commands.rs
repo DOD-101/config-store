@@ -119,3 +119,9 @@ pub fn list_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
             acc
         }))
 }
+
+pub fn drop_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
+    connection.execute("DROP TABLE data", [])?;
+
+    Ok("Ok".to_string())
+}

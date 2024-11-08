@@ -43,6 +43,7 @@ fn main() -> Result<()> {
         Action::Delete { name } => commands::delete_cmd(&connection, name),
         Action::Check { name } => commands::exists_cmd(&connection, name),
         Action::List => commands::list_cmd(&connection),
+        Action::Drop => commands::drop_cmd(&connection),
     }?;
 
     println!("{}", result);
@@ -98,4 +99,6 @@ enum Action {
     Check { name: String },
     /// List the contents of the db
     List,
+    /// Delete all data. !! BE VERY CAREFUL WITH THIS !!
+    Drop,
 }
