@@ -53,10 +53,21 @@ pub fn delete_cmd(connection: &Connection, name: String) -> Result<String, rusql
     Ok("Ok".to_string())
 }
 
-pub fn get_cmd(connection: &Connection, name: String) -> Result<String, rusqlite::Error> {
+pub fn get_cmd(
+    connection: &Connection,
+    name: String,
+    value_only: bool,
+    alternate_only: bool,
+) -> Result<String, rusqlite::Error> {
     let entry = select(connection, &name)?;
 
-    Ok(entry.name)
+    if value_only {
+        Ok(entry.value)
+    } else if alternate_only {
+        Ok(entry.alternate)
+    } else {
+        Ok(format!("{} {}", entry.value, entry.alternate))
+    }
 }
 
 pub fn set_cmd(

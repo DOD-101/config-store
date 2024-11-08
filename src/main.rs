@@ -38,7 +38,7 @@ fn main() -> Result<()> {
             name,
             value_only,
             alternate_only,
-        } => commands::get_cmd(&connection, name),
+        } => commands::get_cmd(&connection, name, value_only, alternate_only),
         Action::Toggle { name } => commands::toggle_cmd(&connection, name),
         Action::Delete { name } => commands::delete_cmd(&connection, name),
         Action::Check { name } => commands::exists_cmd(&connection, name),
@@ -79,10 +79,10 @@ enum Action {
         /// The name of the entry to get
         name: String,
         /// Only get the value
-        #[arg(short, long)]
+        #[arg(short, long, conflicts_with = "alternate_only")]
         value_only: bool,
         /// Only get the alternate
-        #[arg(short, long)]
+        #[arg(short, long, conflicts_with = "value_only")]
         alternate_only: bool,
     },
     /// Toggle a entry between it's value & it's alternate
