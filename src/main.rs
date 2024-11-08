@@ -5,7 +5,7 @@
 //! until reboot. Should `config-store.db` be deleted for any reason config-store will simply create
 //! a new one on the next invocation.
 //!
-//! See [commands] for more infomation on how inividual commands work. Or have a look at `doc.md`
+//! See [commands] for more information on how individual commands work.
 //! for a simple high level overview.
 //!
 use core::panic;
