@@ -1,7 +1,7 @@
 //! config-store is a simple and lightweight key-value store designed for easy use from shell
 //! scripts
 //!
-//! It uses a sqlite3 db in `/tmp/config-store.db` to save values. This means that all values persist
+//! It uses a sqlite3 db in `/tmp/config-store.db` by default to save values. This means that all values persist
 //! until reboot. Should `config-store.db` be deleted for any reason config-store will simply create
 //! a new one on the next invocation. <b> Please note that this only applies to release builds. For
 //! debug builds the db is located at `./test.db`. </b>
@@ -19,11 +19,7 @@ mod commands;
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    #[cfg(debug_assertions)]
-    let path = "test.db";
-
-    #[cfg(not(debug_assertions))]
-    let path = "/tmp/config-store.db";
+    let path = &args.db_path;
 
     let connection =
         Connection::open(path).unwrap_or_else(|_| panic!("Failed to open sqlite3 DB at {}", path));
@@ -77,6 +73,9 @@ struct Args {
     /// What you want to do
     #[command(subcommand)]
     command: Action,
+    /// Used to set an alternate path for the db
+    #[arg(long, default_value = if cfg!(debug_assertions) { "test.db" } else { "/tmp/config-store.db" })]
+    db_path: String,
 }
 
 /// The different (sub-)commands that are available
