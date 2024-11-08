@@ -6,6 +6,7 @@ edition = "2021"
 keywords = ["config", "cli", "sqlite3"]
 categories = [ "command-line-utilities", "config"]
 readme = "README.md"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/DOD-101/config-store"
 authors = ["David Thievon"]
 

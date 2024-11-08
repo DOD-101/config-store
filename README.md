@@ -1,5 +1,8 @@
 # Config-Store
 
+[![Static Badge](https://img.shields.io/badge/Crates.io-orange?style=flat)](https://crates.io/crates/config-store)
+![Dynamic TOML Badge](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FDOD-101%2Fconfig-store%2Frefs%2Fheads%2Fmaster%2FCargo.toml&query=package.version&label=Version&color=rgb(20%2C%2020%2C%2020))
+
 Config-Store is a simple key-value store designed to be used from shell scripts. 
 
 ## Example
