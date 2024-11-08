@@ -19,8 +19,6 @@ mod commands;
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    println!("{:#?}", args);
-
     #[cfg(debug_assertions)]
     let path = "test.db";
 
