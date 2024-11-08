@@ -41,7 +41,7 @@ fn main() -> Result<()> {
             );",
             (),
         )
-        .expect("Failed to create values TABLE");
+        .expect("Failed to create data TABLE");
 
     let result = match args.command {
         Action::Set {
