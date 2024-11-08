@@ -1,7 +1,14 @@
 [package]
 name = "config-store"
+description = "config-store is a simple and lightweight key-value store designed for easy use from shell scripts"
 version = "0.1.0"
 edition = "2021"
+keywords = ["config", "cli", "sqlite3"]
+categories = [ "command-line-utilities", "config"]
+readme = "README.md"
+repository = "https://github.com/DOD-101/config-store"
+authors = ["David Thievon"]
+
 
 [dependencies]
 clap = { version = "4.5.20", features = ["derive"] }
