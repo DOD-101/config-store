@@ -1,4 +1,5 @@
 use core::panic;
+use std::fmt::Write;
 use std::process::exit;
 
 use clap::{Parser, Subcommand};
@@ -49,6 +50,7 @@ fn main() -> Result<()> {
         Action::Toggle { name } => toggle_cmd(&connection, name),
         Action::Delete { name } => delete_cmd(&connection, name),
         Action::Check { name } => exists_cmd(&connection, name),
+        Action::List => list_cmd(&connection),
     }?;
 
     println!("{}", result);
@@ -102,6 +104,8 @@ enum Action {
     },
     /// Check if an entry exists
     Check { name: String },
+    /// List the contents of the db
+    List,
 }
 
 fn select(connection: &Connection, name: &str) -> Result<Value, rusqlite::Error> {
@@ -196,4 +200,21 @@ fn toggle_cmd(connection: &Connection, name: String) -> Result<String, rusqlite:
     )?;
 
     Ok(value.value)
+}
+
+fn list_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
+    Ok(connection
+        .prepare("SELECT * FROM data")?
+        .query_map([], |row| {
+            Ok(Value {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                value: row.get(2)?,
+                alternate: row.get(3)?,
+            })
+        })?
+        .fold(String::new(), |mut acc, e| {
+            writeln!(acc, "{:?}", e.unwrap()).unwrap();
+            acc
+        }))
 }
