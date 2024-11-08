@@ -1,3 +1,13 @@
+//! config-store is a simple and lightweight key-value store designed for easy use from shell
+//! scripts
+//!
+//! It uses a sqlite3 db in `/tmp/config-store.db` to save values. This means that all values persist
+//! until reboot. Should `config-store.db` be deleted for any reason config-store will simply create
+//! a new one on the next invocation.
+//!
+//! See [commands] for more infomation on how inividual commands work. Or have a look at `doc.md`
+//! for a simple high level overview.
+//!
 use core::panic;
 
 use clap::{Parser, Subcommand};
@@ -51,6 +61,8 @@ fn main() -> Result<()> {
     Ok(())
 }
 
+/// Struct containing all command line options
+/// For more information see [clap documentation](https://docs.rs/clap/latest/clap/index.html)
 #[derive(Debug, Parser)]
 struct Args {
     /// What you want to do
@@ -58,6 +70,7 @@ struct Args {
     command: Action,
 }
 
+/// The different (sub-)commands that are available
 #[derive(Debug, Subcommand)]
 enum Action {
     /// Set / Change a value & it's alternate
@@ -70,7 +83,7 @@ enum Action {
         /// The alternate
         #[arg(short, long)]
         alternate: Option<String>,
-        /// Only change an entries, don't create a new ones
+        /// Only change entries, don't create a new ones
         #[arg(short, long)]
         change_only: bool,
     },
@@ -97,8 +110,8 @@ enum Action {
     },
     /// Check if an entry exists
     Check { name: String },
-    /// List the contents of the db
+    /// List all entries
     List,
-    /// Delete all entries. !! BE VERY CAREFUL WITH THIS !!
+    /// Delete all entries !! BE VERY CAREFUL WITH THIS !!
     Drop,
 }
