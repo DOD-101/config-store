@@ -64,6 +64,11 @@ fn main() -> Result<()> {
 /// Struct containing all command line options
 /// For more information see [clap documentation](https://docs.rs/clap/latest/clap/index.html)
 #[derive(Debug, Parser)]
+#[command(
+    version,
+    about = "config-store is a simple key-value store designed for use from shell scripts",
+    author
+)]
 struct Args {
     /// What you want to do
     #[command(subcommand)]
