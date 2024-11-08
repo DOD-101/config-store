@@ -43,18 +43,19 @@ fn main() -> Result<()> {
             value,
             alternate,
             change_only,
-        } => commands::set_cmd(&connection, name, value, alternate, change_only),
+        } => commands::set_cmd(&connection, name, value, alternate, change_only)?,
         Action::Get {
             name,
             value_only,
             alternate_only,
-        } => commands::get_cmd(&connection, name, value_only, alternate_only),
-        Action::Toggle { name } => commands::toggle_cmd(&connection, name),
-        Action::Delete { name } => commands::delete_cmd(&connection, name),
-        Action::Check { name } => commands::exists_cmd(&connection, name),
-        Action::List => commands::list_cmd(&connection),
-        Action::Drop => commands::drop_cmd(&connection),
-    }?;
+        } => commands::get_cmd(&connection, name, value_only, alternate_only)?,
+        Action::Toggle { name } => commands::toggle_cmd(&connection, name)?,
+        Action::Delete { name } => commands::delete_cmd(&connection, name)?,
+        Action::Check { name } => commands::exists_cmd(&connection, name)?,
+        Action::List => commands::list_cmd(&connection)?,
+        Action::Drop => commands::drop_cmd(&connection)?,
+        Action::Completions { shell } => commands::completions_cmd(shell),
+    };
 
     println!("{}", result);
 
@@ -117,9 +118,17 @@ enum Action {
         name: String,
     },
     /// Check if an entry exists
-    Check { name: String },
+    Check {
+        /// The name of the entry to check
+        name: String,
+    },
     /// List all entries
     List,
     /// Delete all entries !! BE VERY CAREFUL WITH THIS !!
     Drop,
+    /// Generate shell completions
+    Completions {
+        /// The shell to generate completions for
+        shell: clap_complete::Shell,
+    },
 }

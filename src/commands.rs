@@ -4,8 +4,9 @@
 //! one [crate::Action].
 //!
 //! Additionally this module contains some helper functions and the [Entry] struct.
+use clap::CommandFactory;
 use rusqlite::{Connection, Result};
-use std::{fmt::Write, process::exit};
+use std::{fmt::Write, io::Cursor, process::exit};
 
 // TODO: Should this be moved?
 /// A struct representing an entry in the db
@@ -174,6 +175,21 @@ pub fn drop_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
     connection.execute("DROP TABLE data", [])?;
 
     Ok("Ok".to_string())
+}
+
+/// Generates shell completion script
+pub fn completions_cmd(shell: clap_complete::Shell) -> String {
+    let mut cursor_vec: Vec<u8> = vec![];
+    let mut cursor = Cursor::new(&mut cursor_vec);
+
+    clap_complete::generate(
+        shell,
+        &mut crate::Args::command(),
+        crate::Args::command().get_name(),
+        &mut cursor,
+    );
+
+    String::from_utf8(cursor.get_ref().to_vec()).expect("Failed to generate completion String.")
 }
 
 #[cfg(test)]

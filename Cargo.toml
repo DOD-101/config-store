@@ -13,4 +13,5 @@ authors = ["David Thievon"]
 
 [dependencies]
 clap = { version = "4.5.20", features = ["derive"] }
+clap_complete = "4.5.37"
 rusqlite = { version = "0.32.1", features = ["bundled"] }
