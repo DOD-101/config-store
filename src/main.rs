@@ -62,7 +62,7 @@ struct Args {
 enum Action {
     /// Set / Change a value & it's alternate
     Set {
-        /// The name of the value to set
+        /// The name of the Entry
         name: String,
         /// The value
         #[arg(short, long)]
@@ -70,7 +70,7 @@ enum Action {
         /// The alternate
         #[arg(short, long)]
         alternate: Option<String>,
-        /// Only change an entry, don't create a new one
+        /// Only change an entries, don't create a new ones
         #[arg(short, long)]
         change_only: bool,
     },
@@ -99,6 +99,6 @@ enum Action {
     Check { name: String },
     /// List the contents of the db
     List,
-    /// Delete all data. !! BE VERY CAREFUL WITH THIS !!
+    /// Delete all entries. !! BE VERY CAREFUL WITH THIS !!
     Drop,
 }

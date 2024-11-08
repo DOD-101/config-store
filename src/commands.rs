@@ -2,16 +2,16 @@ use rusqlite::{Connection, Result};
 use std::{fmt::Write, process::exit};
 
 #[derive(Debug)]
-struct Value {
+struct Entry {
     id: i32,
     name: String,
     value: String,
     alternate: String,
 }
 
-fn select(connection: &Connection, name: &str) -> Result<Value, rusqlite::Error> {
+fn select(connection: &Connection, name: &str) -> Result<Entry, rusqlite::Error> {
     connection.query_row("SELECT * FROM data WHERE name = ?", [name], |row| {
-        Ok(Value {
+        Ok(Entry {
             id: row.get(0)?,
             name: row.get(1)?,
             value: row.get(2)?,
@@ -54,9 +54,9 @@ pub fn delete_cmd(connection: &Connection, name: String) -> Result<String, rusql
 }
 
 pub fn get_cmd(connection: &Connection, name: String) -> Result<String, rusqlite::Error> {
-    let value = select(connection, &name)?;
+    let entry = select(connection, &name)?;
 
-    Ok(value.name)
+    Ok(entry.name)
 }
 
 pub fn set_cmd(
@@ -67,13 +67,13 @@ pub fn set_cmd(
     change_only: bool,
 ) -> Result<String, rusqlite::Error> {
     if exists(connection, &name)? {
-        let value = select(connection, &name)?;
+        let entry = select(connection, &name)?;
 
         connection.execute(
             "UPDATE data SET value = ?, alternate = ? WHERE name = ?",
             [
-                new_value.unwrap_or(value.value.clone()),
-                new_alternate.unwrap_or(value.alternate.clone()),
+                new_value.unwrap_or(entry.value.clone()),
+                new_alternate.unwrap_or(entry.alternate.clone()),
                 name,
             ],
         )?;
@@ -93,21 +93,21 @@ pub fn set_cmd(
 }
 
 pub fn toggle_cmd(connection: &Connection, name: String) -> Result<String, rusqlite::Error> {
-    let value = select(connection, &name)?;
+    let entry = select(connection, &name)?;
 
     connection.execute(
         "UPDATE data SET value = ?, alternate = ? WHERE name = ?",
-        [value.alternate, value.value.clone(), value.name],
+        [entry.alternate, entry.value.clone(), entry.name],
     )?;
 
-    Ok(value.value)
+    Ok(entry.value)
 }
 
 pub fn list_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
     Ok(connection
         .prepare("SELECT * FROM data")?
         .query_map([], |row| {
-            Ok(Value {
+            Ok(Entry {
                 id: row.get(0)?,
                 name: row.get(1)?,
                 value: row.get(2)?,
