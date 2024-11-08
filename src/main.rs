@@ -3,7 +3,8 @@
 //!
 //! It uses a sqlite3 db in `/tmp/config-store.db` to save values. This means that all values persist
 //! until reboot. Should `config-store.db` be deleted for any reason config-store will simply create
-//! a new one on the next invocation.
+//! a new one on the next invocation. <b> Please note that this only applies to release builds. For
+//! debug builds the db is located at `./test.db`. </b>
 //!
 //! See [commands] for more information on how individual commands work.
 //! for a simple high level overview.
@@ -20,7 +21,12 @@ fn main() -> Result<()> {
 
     println!("{:#?}", args);
 
+    #[cfg(debug_assertions)]
     let path = "test.db";
+
+    #[cfg(not(debug_assertions))]
+    let path = "/tmp/config-store.db";
+
     let connection =
         Connection::open(path).unwrap_or_else(|_| panic!("Failed to open sqlite3 DB at {}", path));
 
