@@ -136,3 +136,94 @@ pub fn drop_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
 
     Ok("Ok".to_string())
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    fn create_db() -> Connection {
+        let connection = Connection::open_in_memory().unwrap();
+        connection
+            .execute(
+                "
+            CREATE TABLE IF NOT EXISTS data (
+                id INTEGER PRIMARY KEY,
+                name TEXT,
+                value TEXT,
+                alternate TEXT
+            );",
+                (),
+            )
+            .expect("Failed to create values TABLE");
+
+        connection
+    }
+
+    #[test]
+    fn insert_and_drop() {
+        let connection = create_db();
+
+        new(
+            &connection,
+            "test1".to_string(),
+            "value1".to_string(),
+            "alternate1".to_string(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            list_cmd(&connection).unwrap(),
+            format!(
+                "{:?}\n",
+                Entry {
+                    id: 1,
+                    name: "test1".to_string(),
+                    value: "value1".to_string(),
+                    alternate: "alternate1".to_string(),
+                }
+            )
+        );
+
+        drop_cmd(&connection).unwrap();
+    }
+
+    #[test]
+    fn insert_and_exists() {
+        let connection = create_db();
+
+        assert_eq!(
+            exists_cmd(&connection, "test1".to_string()).unwrap(),
+            "false"
+        );
+
+        new(
+            &connection,
+            "test1".to_string(),
+            "value1".to_string(),
+            "alternate1".to_string(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            exists_cmd(&connection, "test1".to_string()).unwrap(),
+            "true"
+        );
+    }
+
+    #[test]
+    fn insert_and_get() {
+        let connection = create_db();
+
+        new(
+            &connection,
+            "test1".to_string(),
+            "value1".to_string(),
+            "alternate1".to_string(),
+        )
+        .unwrap();
+
+        assert_eq!(
+            get_cmd(&connection, "test1".to_string(), false, false).unwrap(),
+            format!("{} {}", "value1", "alternate1")
+        );
+    }
+}
