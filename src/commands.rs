@@ -5,8 +5,8 @@
 //!
 //! Additionally this module contains some helper functions and the [Entry] struct.
 use clap::CommandFactory;
-use rusqlite::{Connection, Result};
-use std::{fmt::Write, io::Cursor, process::exit};
+use rusqlite::Connection;
+use std::{fmt::Write, io::Cursor};
 
 // TODO: Should this be moved?
 /// A struct representing an entry in the db
@@ -24,36 +24,57 @@ struct Entry {
     alternate: String,
 }
 
-/// Helper function too get an [Entry] from the db
+/// A custom error type wrapping [rusqlite::Error]
+///
+/// Wraps [rusqlite::Error] and adds a more descriptive [Error::NoEntry] to make errors clearer to
+/// users.
+#[derive(Debug)]
+pub enum Error {
+    #[allow(dead_code)]
+    /// A wrapper around an [rusqlite::Error]
+    RusqliteError(rusqlite::Error),
+    /// Error for trying to operate on an Entry that doesn't exist
+    NoEntry,
+}
+
+impl From<rusqlite::Error> for Error {
+    fn from(error: rusqlite::Error) -> Self {
+        match error {
+            rusqlite::Error::QueryReturnedNoRows => Error::NoEntry,
+            _ => Error::RusqliteError(error),
+        }
+    }
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
+
+/// Helper function to get an [Entry] from the db
 ///
 /// Since it uses [rusqlite::Connection::query_row] it will only ever return the first match.
 ///
 /// Having multiple different entries with the same name is not supported.
-fn select(connection: &Connection, name: &str) -> Result<Entry, rusqlite::Error> {
-    connection.query_row("SELECT * FROM data WHERE name = ?", [name], |row| {
-        Ok(Entry {
-            _id: row.get(0)?,
-            name: row.get(1)?,
-            value: row.get(2)?,
-            alternate: row.get(3)?,
-        })
-    })
+fn select(connection: &Connection, name: &str) -> Result<Entry> {
+    Ok(
+        connection.query_row("SELECT * FROM data WHERE name = ?", [name], |row| {
+            Ok(Entry {
+                _id: row.get(0)?,
+                name: row.get(1)?,
+                value: row.get(2)?,
+                alternate: row.get(3)?,
+            })
+        })?,
+    )
 }
 
 /// Helper function to check if an [Entry] exists
-fn exists(connection: &Connection, name: &str) -> Result<bool, rusqlite::Error> {
-    connection
+fn exists(connection: &Connection, name: &str) -> Result<bool> {
+    Ok(connection
         .prepare("SELECT name FROM data WHERE name = ?")?
-        .exists([name])
+        .exists([name])?)
 }
 
 /// Helper function to create a new [Entry]
-fn new(
-    connection: &Connection,
-    name: String,
-    value: String,
-    alternate: String,
-) -> Result<String, rusqlite::Error> {
+fn new(connection: &Connection, name: String, value: String, alternate: String) -> Result<String> {
     connection.execute(
         "INSERT INTO data (name, value, alternate) VALUES (?1, ?2, ?3)",
         [name, value, alternate],
@@ -66,7 +87,7 @@ fn new(
 ///
 /// This is merely a wrapper around [exists], which is needed to convert from
 /// [`Result<bool, rusqlite::Error>`] to [`Result<String, rusqlite::Error>`].
-pub fn exists_cmd(connection: &Connection, name: String) -> Result<String, rusqlite::Error> {
+pub fn exists_cmd(connection: &Connection, name: String) -> Result<String> {
     match exists(connection, &name) {
         Ok(b) => Ok(b.to_string()),
         Err(e) => Err(e),
@@ -76,7 +97,7 @@ pub fn exists_cmd(connection: &Connection, name: String) -> Result<String, rusql
 /// Delete an [Entry] in the db
 ///
 /// If the entry doesn't exist, this will do nothing.
-pub fn delete_cmd(connection: &Connection, name: String) -> Result<String, rusqlite::Error> {
+pub fn delete_cmd(connection: &Connection, name: String) -> Result<String> {
     connection.execute("DELETE FROM data WHERE name = ?", [name])?;
 
     Ok("Ok".to_string())
@@ -88,7 +109,7 @@ pub fn get_cmd(
     name: String,
     value_only: bool,
     alternate_only: bool,
-) -> Result<String, rusqlite::Error> {
+) -> Result<String> {
     let entry = select(connection, &name)?;
 
     if value_only {
@@ -109,7 +130,7 @@ pub fn set_cmd(
     new_value: Option<String>,
     new_alternate: Option<String>,
     change_only: bool,
-) -> Result<String, rusqlite::Error> {
+) -> Result<String> {
     if exists(connection, &name)? {
         let entry = select(connection, &name)?;
 
@@ -131,13 +152,12 @@ pub fn set_cmd(
             new_alternate.unwrap_or_default(),
         )
     } else {
-        eprintln!("Trying to change a value that doesn't exist.");
-        exit(1)
+        Err(Error::NoEntry)
     }
 }
 
 /// Toggles an [Entry]'s value & alternate returning the new value
-pub fn toggle_cmd(connection: &Connection, name: String) -> Result<String, rusqlite::Error> {
+pub fn toggle_cmd(connection: &Connection, name: String) -> Result<String> {
     let entry = select(connection, &name)?;
 
     connection.execute(
@@ -151,7 +171,7 @@ pub fn toggle_cmd(connection: &Connection, name: String) -> Result<String, rusql
 // TODO: The representation of the entries could be changed to make them easier to use from bash
 // scripts
 /// Lists all entries in the db
-pub fn list_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
+pub fn list_cmd(connection: &Connection) -> Result<String> {
     Ok(connection
         .prepare("SELECT * FROM data")?
         .query_map([], |row| {
@@ -171,7 +191,7 @@ pub fn list_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
 /// Drops the `data` table deleting all entries.
 ///
 /// This won't actually delete the file on disk.
-pub fn drop_cmd(connection: &Connection) -> Result<String, rusqlite::Error> {
+pub fn drop_cmd(connection: &Connection) -> Result<String> {
     connection.execute("DROP TABLE data", [])?;
 
     Ok("Ok".to_string())

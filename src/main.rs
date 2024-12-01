@@ -12,11 +12,11 @@
 use core::panic;
 
 use clap::{Parser, Subcommand};
-use rusqlite::{Connection, Result};
+use rusqlite::Connection;
 
 mod commands;
 
-fn main() -> Result<()> {
+fn main() -> commands::Result<()> {
     let args = Args::parse();
 
     let path = &args.db_path;
