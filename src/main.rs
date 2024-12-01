@@ -2,12 +2,12 @@
 //! scripts
 //!
 //! It uses a sqlite3 db in `/tmp/config-store.db` by default to save values. This means that all values persist
-//! until reboot. Should `config-store.db` be deleted for any reason config-store will simply create
+//! until reboot. Should `config-store.db` be deleted for any reason, config-store will simply create
 //! a new one on the next invocation. <b> Please note that this only applies to release builds. For
 //! debug builds the db is located at `./test.db`. </b>
 //!
 //! See [commands] for more information on how individual commands work.
-//! for a simple high level overview.
+//! for a simple, high-level overview.
 //!
 use core::panic;
 
@@ -63,7 +63,7 @@ fn main() -> commands::Result<()> {
 }
 
 /// Struct containing all command line options
-/// For more information see [clap documentation](https://docs.rs/clap/latest/clap/index.html)
+/// For more information, see [clap documentation](https://docs.rs/clap/latest/clap/index.html)
 #[derive(Debug, Parser)]
 #[command(
     version,
@@ -92,7 +92,7 @@ enum Action {
         /// The alternate
         #[arg(short, long)]
         alternate: Option<String>,
-        /// Only change entries, don't create a new ones
+        /// Only change entries; don't create new ones
         #[arg(short, long)]
         change_only: bool,
     },
@@ -107,7 +107,7 @@ enum Action {
         #[arg(short, long, conflicts_with = "value_only")]
         alternate_only: bool,
     },
-    /// Toggle a entry between it's value & it's alternate
+    /// Toggle an entry between its value & its alternate
     Toggle {
         /// The name of the entry to toggle
         name: String,

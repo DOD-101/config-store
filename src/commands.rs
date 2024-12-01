@@ -3,7 +3,7 @@
 //! Each function ending in `_cmd` is mapped to one [crate::Action] and is only to be used by that
 //! one [crate::Action].
 //!
-//! Additionally this module contains some helper functions and the [Entry] struct.
+//! Additionally, this module contains some helper functions and the [Entry] struct.
 use clap::CommandFactory;
 use rusqlite::Connection;
 use std::{fmt::Write, io::Cursor};
@@ -18,7 +18,7 @@ struct Entry {
     name: String,
     /// The value of the entry
     value: String,
-    /// An additional value that can be toggle to
+    /// An additional value that can be toggled to
     ///
     /// This is particularly useful for true / false toggles
     alternate: String,
@@ -33,7 +33,7 @@ pub enum Error {
     #[allow(dead_code)]
     /// A wrapper around an [rusqlite::Error]
     RusqliteError(rusqlite::Error),
-    /// Error for trying to operate on an Entry that doesn't exist
+    /// Error for trying to operate on an [Entry] that doesn't exist
     NoEntry,
 }
 
