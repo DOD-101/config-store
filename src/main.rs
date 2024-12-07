@@ -7,7 +7,6 @@
 //! debug builds the db is located at `./test.db`. </b>
 //!
 //! See [commands] for more information on how individual commands work.
-//! for a simple, high-level overview.
 //!
 use core::panic;
 
@@ -74,7 +73,7 @@ struct Args {
     /// What you want to do
     #[command(subcommand)]
     command: Action,
-    /// Used to set an alternate path for the db
+    /// Set an alternate path for the db
     #[arg(long, default_value = if cfg!(debug_assertions) { "test.db" } else { "/tmp/config-store.db" })]
     db_path: String,
 }
@@ -124,7 +123,8 @@ enum Action {
     },
     /// List all entries
     List,
-    /// Delete all entries !! BE VERY CAREFUL WITH THIS !!
+    /// Delete all entries <span style="color: red;">!! BE VERY CAREFUL WITH THIS !!</span>
+    #[command(about = "Delete all entries !! BE VERY CAREFUL WITH THIS !!")]
     Drop,
     /// Generate shell completions
     Completions {

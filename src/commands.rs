@@ -8,11 +8,12 @@ use clap::CommandFactory;
 use rusqlite::Connection;
 use std::{fmt::Write, io::Cursor};
 
-// TODO: Should this be moved?
-/// A struct representing an entry in the db
+/// Representation an entry in the db
 #[derive(Debug)]
 struct Entry {
     /// The id in the db
+    ///
+    /// This is used as the primary key in the db. It is never touched by the user.
     _id: i32,
     /// The identifier set & accessed by users
     name: String,
@@ -86,7 +87,7 @@ fn new(connection: &Connection, name: String, value: String, alternate: String) 
 /// Check for the existence of an [Entry] in the db
 ///
 /// This is merely a wrapper around [exists], which is needed to convert from
-/// [`Result<bool, rusqlite::Error>`] to [`Result<String, rusqlite::Error>`].
+/// [`Result<bool>`] to [`Result<String>`].
 pub fn exists_cmd(connection: &Connection, name: String) -> Result<String> {
     match exists(connection, &name) {
         Ok(b) => Ok(b.to_string()),
@@ -121,9 +122,9 @@ pub fn get_cmd(
     }
 }
 
-/// Create a new (if not `change_only`) [Entry] in the db or update an existing one
+/// Creates a new (if not `change_only`) [Entry] in the db or update an existing one
 ///
-/// Will exit if `change_only == true` and [exists] returns false (aka. the value doesn't exist).
+/// Will return [Error::NoEntry] if `change_only == true` and [exists] returns false (aka. the value doesn't exist).
 pub fn set_cmd(
     connection: &Connection,
     name: String,
@@ -197,7 +198,7 @@ pub fn drop_cmd(connection: &Connection) -> Result<String> {
     Ok("Ok".to_string())
 }
 
-/// Generates shell completion script
+/// Generates shell the completion script
 pub fn completions_cmd(shell: clap_complete::Shell) -> String {
     let mut cursor_vec: Vec<u8> = vec![];
     let mut cursor = Cursor::new(&mut cursor_vec);
