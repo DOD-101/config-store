@@ -15,6 +15,14 @@ Now you could create an entry with the `set` command and then toggle between the
 
 `config-store --help` or see doc comments in `./src/commands.rs`
 
+Config-store has shell completions. Simply add `eval "$(config-store completions *your_shell*)"` to your shell config.
+
+## Note on `/tmp`
+
+*Most* distros will clear `/tmp` on boot. You should check what the case is for your distro and write your scripts acordingly, or change `/tmp` to clear on boot. 
+
+On NixOs this can be done by setting `boot.tmp.cleanOnBoot = true;`.
+
 ## To-Do
 
 - [ ] Create packages (cargo & nix?)
@@ -25,13 +33,13 @@ Now you could create an entry with the `set` command and then toggle between the
 
 - The data (aka the key-value pairs) are stored in `/tmp/config-store.db`, which is a sqlite3 database.
 
-- Internally, the commands are mostly wrappers around SQL statements, but as simple shell commands.
+- Internally, the commands are mostly wrappers around SQL statements.
 
 - While it is technically possible to have multiple different entries with the same name, because the primary key is not the name.
   This is impossible to do with the commands provided, since `set` will always update a value if it exists.
 
-- Because the data is stored on disk, config-store needs no server process. Not only does this make it simpler, it also means there is no overhead to 
-  using it to store your variables.
+- Because the data is stored on disk, config-store needs no server process.
+  Not only does this make it simpler, it also means there is no overhead to using it to store your variables.
 
 ## License 
 
