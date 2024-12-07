@@ -89,10 +89,7 @@ fn new(connection: &Connection, name: String, value: String, alternate: String) 
 /// This is merely a wrapper around [exists], which is needed to convert from
 /// [`Result<bool>`] to [`Result<String>`].
 pub fn exists_cmd(connection: &Connection, name: String) -> Result<String> {
-    match exists(connection, &name) {
-        Ok(b) => Ok(b.to_string()),
-        Err(e) => Err(e),
-    }
+    exists(connection, &name).map(|b| b.to_string())
 }
 
 /// Delete an [Entry] in the db
@@ -114,12 +111,14 @@ pub fn get_cmd(
     let entry = select(connection, &name)?;
 
     if value_only {
-        Ok(entry.value)
-    } else if alternate_only {
-        Ok(entry.alternate)
-    } else {
-        Ok(format!("{} {}", entry.value, entry.alternate))
+        return Ok(entry.value);
     }
+
+    if alternate_only {
+        return Ok(entry.alternate);
+    }
+
+    Ok(format!("{} {}", entry.value, entry.alternate))
 }
 
 /// Creates a new (if not `change_only`) [Entry] in the db or update an existing one
