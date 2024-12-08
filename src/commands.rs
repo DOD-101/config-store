@@ -85,7 +85,7 @@ pub fn delete_cmd(connection: &Connection, name: String) -> Result<String> {
     Ok("Ok".to_string())
 }
 
-/// Returns a value (and/or) alternate from the db
+/// Return a value (and/or) alternate from the db
 pub fn get_cmd(
     connection: &Connection,
     name: String,
@@ -209,6 +209,7 @@ pub fn completions_cmd(shell: clap_complete::Shell) -> String {
 mod test {
     use super::*;
     fn create_db() -> Connection {
+        // WARN: Transactions do not work in an in memory db
         let connection = Connection::open_in_memory().unwrap();
         connection
             .execute(
