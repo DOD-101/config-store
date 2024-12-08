@@ -3,27 +3,11 @@
 //! Each function ending in `_cmd` is mapped to one [crate::Action] and is only to be used by that
 //! one [crate::Action].
 //!
-//! Additionally, this module contains some helper functions and the [Entry] struct.
 use clap::CommandFactory;
 use rusqlite::Connection;
 use std::{fmt::Write, io::Cursor};
 
-/// Representation an entry in the db
-#[derive(Debug)]
-struct Entry {
-    /// The id in the db
-    ///
-    /// This is used as the primary key in the db. It is never touched by the user.
-    _id: i32,
-    /// The identifier set & accessed by users
-    name: String,
-    /// The value of the entry
-    value: String,
-    /// An additional value that can be toggled to
-    ///
-    /// This is particularly useful for true / false toggles
-    alternate: String,
-}
+use crate::entry::Entry;
 
 /// A custom error type wrapping [rusqlite::Error]
 ///
@@ -107,6 +91,7 @@ pub fn get_cmd(
     name: String,
     value_only: bool,
     alternate_only: bool,
+    json_format: bool,
 ) -> Result<String> {
     let entry = select(connection, &name)?;
 
@@ -116,6 +101,10 @@ pub fn get_cmd(
 
     if alternate_only {
         return Ok(entry.alternate);
+    }
+
+    if json_format {
+        return Ok(entry.json());
     }
 
     Ok(format!("{} {}", entry.value, entry.alternate))
@@ -137,8 +126,8 @@ pub fn set_cmd(
         connection.execute(
             "UPDATE data SET value = ?, alternate = ? WHERE name = ?",
             [
-                new_value.unwrap_or(entry.value.clone()),
-                new_alternate.unwrap_or(entry.alternate.clone()),
+                new_value.unwrap_or(entry.value),
+                new_alternate.unwrap_or(entry.alternate),
                 name,
             ],
         )?;
@@ -168,10 +157,8 @@ pub fn toggle_cmd(connection: &Connection, name: String) -> Result<String> {
     Ok(entry.alternate)
 }
 
-// TODO: The representation of the entries could be changed to make them easier to use from bash
-// scripts
 /// Lists all entries in the db
-pub fn list_cmd(connection: &Connection) -> Result<String> {
+pub fn list_cmd(connection: &Connection, json: bool) -> Result<String> {
     Ok(connection
         .prepare("SELECT * FROM data")?
         .query_map([], |row| {
@@ -183,7 +170,13 @@ pub fn list_cmd(connection: &Connection) -> Result<String> {
             })
         })?
         .fold(String::new(), |mut acc, e| {
-            writeln!(acc, "{:?}", e.unwrap()).unwrap();
+            let display_string = if json {
+                e.unwrap().json()
+            } else {
+                e.unwrap().to_string()
+            };
+
+            writeln!(acc, "{}", display_string).unwrap();
             acc
         }))
 }
@@ -246,7 +239,7 @@ mod test {
         .unwrap();
 
         assert_eq!(
-            list_cmd(&connection).unwrap(),
+            list_cmd(&connection, false).unwrap(),
             format!(
                 "{:?}\n",
                 Entry {
@@ -297,7 +290,7 @@ mod test {
         .unwrap();
 
         assert_eq!(
-            get_cmd(&connection, "test1".to_string(), false, false).unwrap(),
+            get_cmd(&connection, "test1".to_string(), false, false, false).unwrap(),
             format!("{} {}", "value1", "alternate1")
         );
     }

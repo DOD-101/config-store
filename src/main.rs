@@ -14,6 +14,7 @@ use clap::{Parser, Subcommand};
 use rusqlite::Connection;
 
 mod commands;
+mod entry;
 
 fn main() -> commands::Result<()> {
     let args = Args::parse();
@@ -47,11 +48,12 @@ fn main() -> commands::Result<()> {
             name,
             value_only,
             alternate_only,
-        } => commands::get_cmd(&connection, name, value_only, alternate_only)?,
+            json_format,
+        } => commands::get_cmd(&connection, name, value_only, alternate_only, json_format)?,
         Action::Toggle { name } => commands::toggle_cmd(&connection, name)?,
         Action::Delete { name } => commands::delete_cmd(&connection, name)?,
         Action::Check { name } => commands::exists_cmd(&connection, name)?,
-        Action::List => commands::list_cmd(&connection)?,
+        Action::List { json_format } => commands::list_cmd(&connection, json_format)?,
         Action::Drop => commands::drop_cmd(&connection)?,
         Action::Completions { shell } => commands::completions_cmd(shell),
     };
@@ -105,6 +107,14 @@ enum Action {
         /// Only get the alternate
         #[arg(short, long, conflicts_with = "value_only")]
         alternate_only: bool,
+        /// Return the entire entry as a json object
+        #[arg(
+            short,
+            long,
+            conflicts_with = "value_only",
+            conflicts_with = "alternate_only"
+        )]
+        json_format: bool,
     },
     /// Toggle an entry between its value & its alternate
     Toggle {
@@ -122,7 +132,10 @@ enum Action {
         name: String,
     },
     /// List all entries
-    List,
+    List {
+        #[arg(short, long)]
+        json_format: bool,
+    },
     /// Delete all entries <span style="color: red;">!! BE VERY CAREFUL WITH THIS !!</span>
     #[command(about = "Delete all entries !! BE VERY CAREFUL WITH THIS !!")]
     Drop,
