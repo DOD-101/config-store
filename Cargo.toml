@@ -1,7 +1,7 @@
 [package]
 name = "config-store"
 description = "config-store is a simple and lightweight key-value store designed for easy use from shell scripts"
-version = "0.1.1"
+version = "1.0.0"
 edition = "2021"
 keywords = ["config", "cli", "sqlite3"]
 categories = [ "command-line-utilities", "config"]
