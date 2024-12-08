@@ -19,15 +19,13 @@ Config-store has shell completions. Simply add `eval "$(config-store completions
 
 ## Note on `/tmp`
 
-*Most* distros will clear `/tmp` on boot. You should check what the case is for your distro and write your scripts acordingly, or change `/tmp` to clear on boot. 
+*Most* distros will clear `/tmp` on boot. You should check what the case is for your distro and write your scripts accordingly, or change `/tmp` to clear on boot. 
 
-On NixOs this can be done by setting `boot.tmp.cleanOnBoot = true;`.
+On NixOS this can be done by setting `boot.tmp.cleanOnBoot = true;`.
 
-## To-Do
+## Installing
 
-- [ ] Create packages (cargo & nix?)
-
-- [ ] Iron out any bugs
+Simply run `cargo install`.
 
 ## Technical details 
 
