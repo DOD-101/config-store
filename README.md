@@ -27,6 +27,8 @@ On NixOS this can be done by setting `boot.tmp.cleanOnBoot = true;`.
 
 Simply run `cargo install`.
 
+`config-store` is also availabe in nixpkgs.
+
 ## Technical details 
 
 - The data (aka the key-value pairs) are stored in `/tmp/config-store.db`, which is a sqlite3 database.
