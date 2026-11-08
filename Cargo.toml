@@ -4,7 +4,7 @@ description = "config-store is a simple and lightweight key-value store designed
 version = "1.0.0"
 edition = "2021"
 keywords = ["config", "cli", "sqlite3"]
-categories = [ "command-line-utilities", "config"]
+categories = ["command-line-utilities", "config"]
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/DOD-101/config-store"
@@ -14,4 +14,4 @@ authors = ["David Thievon"]
 [dependencies]
 clap = { version = "4.5.20", features = ["derive"] }
 clap_complete = "4.5.37"
-rusqlite = { version = "0.32.1", features = ["bundled"] }
+rusqlite = { version = "0.41.1", features = ["bundled"] }
