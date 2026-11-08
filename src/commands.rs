@@ -95,16 +95,16 @@ pub fn get_cmd(
 ) -> Result<String> {
     let entry = select(connection, &name)?;
 
-    if value_only {
-        return Ok(entry.value);
+    if json_format {
+        return Ok(entry.json());
     }
 
     if alternate_only {
         return Ok(entry.alternate);
     }
 
-    if json_format {
-        return Ok(entry.json());
+    if value_only || entry.alternate.is_empty() {
+        return Ok(entry.value);
     }
 
     Ok(format!("{} {}", entry.value, entry.alternate))

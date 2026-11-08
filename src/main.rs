@@ -83,7 +83,7 @@ struct Args {
 /// The different (sub-)commands that are available
 #[derive(Debug, Subcommand)]
 enum Action {
-    /// Set / Change a value & it's alternate
+    /// Set / Change a value & its alternate
     Set {
         /// The name of the Entry
         name: String,
@@ -97,7 +97,7 @@ enum Action {
         #[arg(short, long)]
         change_only: bool,
     },
-    /// Get a value & it's alternate
+    /// Get a value & its alternate
     Get {
         /// The name of the entry to get
         name: String,
